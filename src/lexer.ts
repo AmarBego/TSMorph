@@ -12,8 +12,11 @@ const tokenTypes = [
     { regex: /-/, type: 'MINUS' },
     { regex: /\*/, type: 'ASTERISK' },
     { regex: /\//, type: 'SLASH' },
-    // ... add more token types as needed
 ];
+
+function log(message: string): void {
+    console.log(`[Lexer]: ${message}`);
+}
 
 function lexer(input: string): Token[] {
     const tokens: Token[] = [];
@@ -26,6 +29,7 @@ function lexer(input: string): Token[] {
             if (result && result.index === 0) {
                 if (type !== 'WHITESPACE') {
                     tokens.push(new Token(type, result[0]));
+                    log(`Tokenized: ${type}(${result[0]}) at position ${pos}`);
                 }
                 pos += result[0].length;
                 match = true;
@@ -33,6 +37,8 @@ function lexer(input: string): Token[] {
             }
         }
         if (!match) {
+            const errorContext = input.slice(pos, pos + 10);
+            log(`Error: Unexpected token at position ${pos}, near '${errorContext}'`);
             throw new Error(`Unexpected token at position ${pos}`);
         }
     }
