@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { lexer, Token } from '../../src/lexer';
+import { lexer, Token, LexerError } from '../../src/lexer';
 
 function tokenToString(token: Token): string {
     return `${token.type}(${token.value})`;
@@ -37,9 +37,54 @@ describe('Lexer', () => {
         ]);
     });
 
+    it('tokenizes multi-character operators', () => {
+        const input = 'x == y != z <= 2 >= 1;';
+        const tokens = lexer(input);
+        const tokenStrings = tokens.map(tokenToString);
+        expect(tokenStrings).to.deep.equal([
+            'IDENTIFIER(x)',
+            'EQUALS_EQUALS(==)',
+            'IDENTIFIER(y)',
+            'NOT_EQUALS(!=)',
+            'IDENTIFIER(z)',
+            'LESS_EQUALS(<=)',
+            'NUMBER(2)',
+            'GREATER_EQUALS(>=)',
+            'NUMBER(1)',
+            'SEMICOLON(;)',
+        ]);
+    });
+
+    it('tokenizes string literals', () => {
+        const input = 'let str = "hello \\"world\\"";';
+        const tokens = lexer(input);
+        const tokenStrings = tokens.map(tokenToString);
+        expect(tokenStrings).to.deep.equal([
+            'IDENTIFIER(let)',
+            'IDENTIFIER(str)',
+            'EQUALS(=)',
+            'STRING("hello \\"world\\"")',
+            'SEMICOLON(;)',
+        ]);
+    });
+
+    it('handles comments', () => {
+        const input = 'let x = 42; // this is a comment\n/* multi-line\ncomment */';
+        const tokens = lexer(input);
+        const tokenStrings = tokens.map(tokenToString);
+        expect(tokenStrings).to.deep.equal([
+            'IDENTIFIER(let)',
+            'IDENTIFIER(x)',
+            'EQUALS(=)',
+            'NUMBER(42)',
+            'SEMICOLON(;)',
+        ]);
+    });
+
     it('throws error on unexpected token', () => {
         const input = 'let x = 42 @';
-        expect(() => lexer(input)).to.throw('Unexpected token at position 11');
+        expect(() => lexer(input)).to.throw(LexerError);
+        expect(() => lexer(input)).to.throw('Unexpected token at line 1, column 12');
     });
 
     it('handles whitespace correctly', () => {
@@ -80,7 +125,7 @@ describe('Lexer', () => {
         let errorLogged = false;
         const originalLog = console.log;
         console.log = (message: string) => {
-            if (message.includes('Error: Unexpected token at position 11')) {
+            if (message.includes('Error: Unexpected token at line 1, column 12')) {
                 errorLogged = true;
             }
         };
