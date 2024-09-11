@@ -16,43 +16,49 @@ The lexer is responsible for converting input TypeScript code into a stream of t
 - **`MINUS`**: Matches the `-` character.
 - **`ASTERISK`**: Matches the `*` character.
 - **`SLASH`**: Matches the `/` character.
+- **`EQUALS_EQUALS`**: Matches the `==` operator.
+- **`NOT_EQUALS`**: Matches the `!=` operator.
+- **`LESS_EQUALS`**: Matches the `<=` operator.
+- **`GREATER_EQUALS`**: Matches the `>=` operator.
+- **`STRING`**: Matches string literals, including escaped characters.
+- **`COMMENT`**: Matches comments (both single-line and multi-line).
 
 ### **Error Handling**
 
-- **Error Detection**: Throws an error when an unexpected token is encountered.
+- **Error Detection**: Throws a `LexerError` when an unexpected token is encountered.
 - **Error Message**: Includes:
-  - The position of the unexpected token.
+  - The line and column number of the unexpected token.
   - A snippet of the surrounding context.
 - **Error Example**:
   ```plaintext
-  Error: Unexpected token at position 5. Context: 'let x = 10 ;'
+  Error: Unexpected token at line 1, column 12, near 'let x = 42 @'
   ```
 
 ### **Logging**
 
-- **Token Logging**: Logs each token (excluding whitespace) as it is processed.
-- **Error Logging**: Logs errors with the token position and context for debugging purposes.
+- **Token Logging**: Logs each token (excluding whitespace and comments) as it is processed, including its type and position.
+- **Error Logging**: Logs detailed errors with line, column numbers, and token context for debugging purposes.
 
 ### **Known Issues**
 
-- **Multi-character Operators**: Currently does not support multi-character operators (e.g., `==`, `!=`).
-- **String Literals and Comments**: Not yet implemented.
+- **Unrecognized Tokens**: Unexpected tokens are skipped with error logging.
+- **Complex String Literals**: Handling of complex string literals with nested or escaped characters might require further validation.
 
 ### **Future Improvements**
 
-- **Multi-character Operators**: Support for multi-character operators.
-- **String Literals and Comments**: Handling for string literals and comments.
-- **Enhanced Error Messages**: Include line and column numbers in error messages.
+- **Enhanced Error Reporting**: Include better context and recovery mechanisms for unexpected tokens.
+- **Performance Optimizations**: Improve performance for larger inputs and more complex tokenization scenarios.
+- **Extended Token Types**: Support for additional token types and operators as needed.
 
 ## **Example Usage**
 
 ```typescript
 import { lexer } from './lexer';
 
-const input = 'let x = 10;';
+const input = 'let str = "hello \\"world\\"";';
 const tokens = lexer(input);
 
-console.log(tokens); // Output: [ { type: 'IDENTIFIER', value: 'let' }, { type: 'IDENTIFIER', value: 'x' }, { type: 'EQUALS', value: '=' }, { type: 'NUMBER', value: '10' }, { type: 'SEMICOLON', value: ';' } ]
+console.log(tokens); // Output: [ { type: 'IDENTIFIER', value: 'let', line: 1, column: 1 }, { type: 'IDENTIFIER', value: 'str', line: 1, column: 5 }, { type: 'EQUALS', value: '=', line: 1, column: 8 }, { type: 'STRING', value: '"hello \\"world\\""', line: 1, column: 10 }, { type: 'SEMICOLON', value: ';', line: 1, column: 30 } ]
 ```
 
 ## **Development and Contribution**
@@ -63,10 +69,9 @@ To contribute to the development or suggest improvements:
 - **Create a Feature Branch**: Work on your changes in a new branch.
 - **Submit a Pull Request**: Create a pull request with a detailed description of the changes.
 
-
 ### Updates to Documentation
 
-- **Functionality**: Update to reflect changes in token types or behavior.
-- **Error Handling**: Revise error messages and handling mechanisms as the lexer evolves.
-- **Logging**: Add details on logging changes or enhancements.
-- **Known Issues & Future Improvements**: Update with new issues or planned features.
+- **Functionality**: Updated to reflect changes in token types, including multi-character operators and string literals.
+- **Error Handling**: Revised to include detailed error messages with line and column information.
+- **Logging**: Added details on logging of token processing and error handling.
+- **Known Issues & Future Improvements**: Updated with new issues and planned enhancements.
