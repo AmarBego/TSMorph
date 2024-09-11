@@ -24,7 +24,7 @@ This project aims to create a simple TypeScript compiler. The goal is to underst
 1. Clone the repository:
    ```sh
    git clone https://github.com/amarbego/tsmorph.git
-   cd simple-ts-compiler
+   cd tsmorph
    ```
 
 2. Install dependencies:
