@@ -2,9 +2,10 @@ import { expect } from 'chai';
 import { lexer } from '../../src/lexer/lexer';
 import { Token } from '../../src/lexer/token';
 import { LexerError } from '../../src/lexer/lexerError';
+import { TokenType } from '../../src/lexer/tokenTypes';
 
 function tokenToString(token: Token): string {
-    return `${token.type}(${token.value})`;
+    return `${TokenType[token.type]}(${token.value})`;
 }
 
 describe('Lexer', () => {
@@ -15,71 +16,71 @@ describe('Lexer', () => {
         for (let i = 0; i < expectedTokens.length; i++) {
             expect(tokenStrings[i]).to.equal(expectedTokens[i]);
         }
-        expect(tokenStrings[tokenStrings.length - 1]).to.equal('EOF()');
+        expect(tokenStrings[tokenStrings.length - 1]).to.equal(`${TokenType.EOF}()`);
     }
 
     it('tokenizes identifiers and numbers', () => {
         const input = 'let x = 42;';
         expectTokens(input, [
-            'IDENTIFIER(let)',
-            'IDENTIFIER(x)',
-            'EQUALS(=)',
-            'NUMBER(42)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.NUMBER}(42)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('tokenizes operators', () => {
         const input = 'x + y - z * 2 / 1;';
         expectTokens(input, [
-            'IDENTIFIER(x)',
-            'PLUS(+)',
-            'IDENTIFIER(y)',
-            'MINUS(-)',
-            'IDENTIFIER(z)',
-            'ASTERISK(*)',
-            'NUMBER(2)',
-            'SLASH(/)',
-            'NUMBER(1)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.PLUS}(+)`,
+            `${TokenType.IDENTIFIER}(y)`,
+            `${TokenType.MINUS}(-)`,
+            `${TokenType.IDENTIFIER}(z)`,
+            `${TokenType.ASTERISK}(*)`,
+            `${TokenType.NUMBER}(2)`,
+            `${TokenType.SLASH}(/)`,
+            `${TokenType.NUMBER}(1)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('tokenizes multi-character operators', () => {
         const input = 'x == y != z <= 2 >= 1;';
         expectTokens(input, [
-            'IDENTIFIER(x)',
-            'EQUALS_EQUALS(==)',
-            'IDENTIFIER(y)',
-            'NOT_EQUALS(!=)',
-            'IDENTIFIER(z)',
-            'LESS_EQUALS(<=)',
-            'NUMBER(2)',
-            'GREATER_EQUALS(>=)',
-            'NUMBER(1)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.EQUALS_EQUALS}(==)`,
+            `${TokenType.IDENTIFIER}(y)`,
+            `${TokenType.NOT_EQUALS}(!=)`,
+            `${TokenType.IDENTIFIER}(z)`,
+            `${TokenType.LESS_EQUALS}(<=)`,
+            `${TokenType.NUMBER}(2)`,
+            `${TokenType.GREATER_EQUALS}(>=)`,
+            `${TokenType.NUMBER}(1)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('tokenizes string literals', () => {
         const input = 'let str = "hello \\"world\\"";';
         expectTokens(input, [
-            'IDENTIFIER(let)',
-            'IDENTIFIER(str)',
-            'EQUALS(=)',
-            'STRING("hello \\"world\\"")',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(str)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.STRING}("hello \\"world\\"")`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('handles comments', () => {
         const input = 'let x = 42; // this is a comment\n/* multi-line\ncomment */';
         expectTokens(input, [
-            'IDENTIFIER(let)',
-            'IDENTIFIER(x)',
-            'EQUALS(=)',
-            'NUMBER(42)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.NUMBER}(42)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
@@ -92,11 +93,11 @@ describe('Lexer', () => {
     it('handles whitespace correctly', () => {
         const input = '   let    x   =   42   ;   ';
         expectTokens(input, [
-            'IDENTIFIER(let)',
-            'IDENTIFIER(x)',
-            'EQUALS(=)',
-            'NUMBER(42)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.NUMBER}(42)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
@@ -104,66 +105,66 @@ describe('Lexer', () => {
         const input = '';
         const tokens = lexer(input);
         expect(tokens.length).to.equal(1);
-        expect(tokenToString(tokens[0])).to.equal('EOF()');
+        expect(tokenToString(tokens[0])).to.equal(`${TokenType.EOF}()`);
     });
 
     it('handles single character tokens', () => {
         const input = '+-*/=;';
         expectTokens(input, [
-            'PLUS(+)',
-            'MINUS(-)',
-            'ASTERISK(*)',
-            'SLASH(/)',
-            'EQUALS(=)',
-            'SEMICOLON(;)'
+            `${TokenType.PLUS}(+)`,
+            `${TokenType.MINUS}(-)`,
+            `${TokenType.ASTERISK}(*)`,
+            `${TokenType.SLASH}(/)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('handles parentheses and braces', () => {
         const input = '(x + y) * {z - 1};';
         expectTokens(input, [
-            'LEFT_PAREN(()',
-            'IDENTIFIER(x)',
-            'PLUS(+)',
-            'IDENTIFIER(y)',
-            'RIGHT_PAREN())',
-            'ASTERISK(*)',
-            'LEFT_BRACE({)',
-            'IDENTIFIER(z)',
-            'MINUS(-)',
-            'NUMBER(1)',
-            'RIGHT_BRACE(})',
-            'SEMICOLON(;)'
+            `${TokenType.LEFT_PAREN}(`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.PLUS}(+)`,
+            `${TokenType.IDENTIFIER}(y)`,
+            `${TokenType.RIGHT_PAREN})`,
+            `${TokenType.ASTERISK}(*)`,
+            `${TokenType.LEFT_BRACE}{`,
+            `${TokenType.IDENTIFIER}(z)`,
+            `${TokenType.MINUS}(-)`,
+            `${TokenType.NUMBER}(1)`,
+            `${TokenType.RIGHT_BRACE}}`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('handles floating-point numbers', () => {
         const input = '3.14 + 2.5;';
         expectTokens(input, [
-            'NUMBER(3.14)',
-            'PLUS(+)',
-            'NUMBER(2.5)',
-            'SEMICOLON(;)'
+            `${TokenType.NUMBER}(3.14)`,
+            `${TokenType.PLUS}(+)`,
+            `${TokenType.NUMBER}(2.5)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 
     it('handles multiple statements', () => {
         const input = 'let x = 5; let y = 10; x + y;';
         expectTokens(input, [
-            'IDENTIFIER(let)',
-            'IDENTIFIER(x)',
-            'EQUALS(=)',
-            'NUMBER(5)',
-            'SEMICOLON(;)',
-            'IDENTIFIER(let)',
-            'IDENTIFIER(y)',
-            'EQUALS(=)',
-            'NUMBER(10)',
-            'SEMICOLON(;)',
-            'IDENTIFIER(x)',
-            'PLUS(+)',
-            'IDENTIFIER(y)',
-            'SEMICOLON(;)'
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.NUMBER}(5)`,
+            `${TokenType.SEMICOLON}(;)`,
+            `${TokenType.IDENTIFIER}(let)`,
+            `${TokenType.IDENTIFIER}(y)`,
+            `${TokenType.EQUALS}(=)`,
+            `${TokenType.NUMBER}(10)`,
+            `${TokenType.SEMICOLON}(;)`,
+            `${TokenType.IDENTIFIER}(x)`,
+            `${TokenType.PLUS}(+)`,
+            `${TokenType.IDENTIFIER}(y)`,
+            `${TokenType.SEMICOLON}(;)`
         ]);
     });
 });
