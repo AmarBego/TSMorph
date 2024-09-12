@@ -1,4 +1,6 @@
-import { Token, LexerError } from './lexer';
+import { LexerError } from './lexer/lexerError';
+import { Token } from './lexer/token';
+import { TokenType } from './lexer/tokenTypes';
 
 class ParseError extends Error {
     constructor(message: string, public token: Token) {
@@ -39,30 +41,26 @@ class Parser {
     }
 
     private statement(): ASTNode {
-        // Implement various statement types here
-        // For now, let's just handle expression statements
         return this.expressionStatement();
     }
 
     private expressionStatement(): ASTNode {
         const expr = this.expression();
-        this.consume('SEMICOLON', "Expected ';' after expression.");
+        this.consume(TokenType.SEMICOLON, "Expected ';' after expression.");
         return new ASTNode('ExpressionStatement', [expr]);
     }
 
     private expression(): ASTNode {
-        // Implement expression parsing here
-        // For now, let's just handle simple arithmetic
         return this.additive();
     }
 
     private additive(): ASTNode {
         let expr = this.multiplicative();
 
-        while (this.match('PLUS', 'MINUS')) {
+        while (this.match(TokenType.PLUS, TokenType.MINUS)) {
             const operator = this.previous();
             const right = this.multiplicative();
-            expr = new ASTNode(operator.type === 'PLUS' ? 'Addition' : 'Subtraction', [expr, right]);
+            expr = new ASTNode(operator.type === TokenType.PLUS ? 'Addition' : 'Subtraction', [expr, right]);
         }
 
         return expr;
@@ -71,34 +69,34 @@ class Parser {
     private multiplicative(): ASTNode {
         let expr = this.primary();
 
-        while (this.match('ASTERISK', 'SLASH')) {
+        while (this.match(TokenType.ASTERISK, TokenType.SLASH)) {
             const operator = this.previous();
             const right = this.primary();
-            expr = new ASTNode(operator.type === 'ASTERISK' ? 'Multiplication' : 'Division', [expr, right]);
+            expr = new ASTNode(operator.type === TokenType.ASTERISK ? 'Multiplication' : 'Division', [expr, right]);
         }
 
         return expr;
     }
 
     private primary(): ASTNode {
-        if (this.match('NUMBER')) {
+        if (this.match(TokenType.NUMBER)) {
             return new ASTNode('NumberLiteral', [new ASTNode(this.previous().value)]);
         }
 
-        if (this.match('IDENTIFIER')) {
+        if (this.match(TokenType.IDENTIFIER)) {
             return new ASTNode('Identifier', [new ASTNode(this.previous().value)]);
         }
 
-        if (this.match('LEFT_PAREN')) {
+        if (this.match(TokenType.LEFT_PAREN)) {
             const expr = this.expression();
-            this.consume('RIGHT_PAREN', "Expected ')' after expression.");
+            this.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
             return new ASTNode('GroupingExpression', [expr]);
         }
 
         throw this.error(this.peek(), "Expected expression.");
     }
 
-    private match(...types: string[]): boolean {
+    private match(...types: TokenType[]): boolean {
         for (const type of types) {
             if (this.check(type)) {
                 this.advance();
@@ -108,12 +106,12 @@ class Parser {
         return false;
     }
 
-    private consume(type: string, message: string): Token {
+    private consume(type: TokenType, message: string): Token {
         if (this.check(type)) return this.advance();
         throw this.error(this.peek(), message);
     }
 
-    private check(type: string): boolean {
+    private check(type: TokenType): boolean {
         if (this.isAtEnd()) return false;
         return this.peek().type === type;
     }
@@ -124,7 +122,7 @@ class Parser {
     }
 
     private isAtEnd(): boolean {
-        return this.peek().type === 'EOF';
+        return this.peek().type === TokenType.EOF;
     }
 
     private peek(): Token {
