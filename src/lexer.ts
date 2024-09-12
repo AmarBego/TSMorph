@@ -1,4 +1,4 @@
-class Token {
+export class Token {
     constructor(
         public type: string,
         public value: string,
@@ -7,89 +7,97 @@ class Token {
     ) {}
 }
 
-const tokenTypes = [
-    { regex: /\s+/, type: 'WHITESPACE' },
-    { regex: /\/\/.*(?:\r?\n|$)/, type: 'COMMENT' }, // Single-line comments
-    { regex: /\/\*[\s\S]*?\*\//, type: 'COMMENT' }, // Multi-line comments
-    { regex: /==/, type: 'EQUALS_EQUALS' },
-    { regex: /!=/, type: 'NOT_EQUALS' },
-    { regex: /<=/, type: 'LESS_EQUALS' },
-    { regex: />=/, type: 'GREATER_EQUALS' },
-    { regex: /[a-zA-Z_]\w*/, type: 'IDENTIFIER' },
-    { regex: /\d+/, type: 'NUMBER' },
-    { regex: /;/, type: 'SEMICOLON' },
-    { regex: /=/, type: 'EQUALS' },
-    { regex: /\+/, type: 'PLUS' },
-    { regex: /-/, type: 'MINUS' },
-    { regex: /\*/, type: 'ASTERISK' },
-    { regex: /\//, type: 'SLASH' },
-    { regex: /"([^"\\]|\\.)*"/, type: 'STRING' }, // String literals
-];
-
-function log(message: string): void {
-    console.log(`[Lexer]: ${message}`);
-}
-
-class LexerError extends Error {
+export class LexerError extends Error {
     constructor(message: string, public line: number, public column: number) {
         super(message);
         this.name = 'LexerError';
     }
 }
 
-function lexer(input: string): Token[] {
-    const tokens: Token[] = [];
-    let pos = 0;
-    let line = 1;
-    let column = 1;
-
-    function updatePosition(str: string) {
-        for (const char of str) {
-            if (char === '\n') {
-                line++;
-                column = 1;
-            } else {
-                column++;
-            }
-        }
-    }
-
-    log(`Starting lexical analysis of input (length: ${input.length})`);
-
-    while (pos < input.length) {
-        let match = false;
-        for (const { regex, type } of tokenTypes) {
-            const result = regex.exec(input.slice(pos));
-            if (result && result.index === 0) {
-                if (type === 'COMMENT' || type === 'WHITESPACE') {
-                    log(`Skipped ${type} at line ${line}, column ${column}: "${result[0].replace(/\n/g, '\\n')}"`);
-                } else {
-                    tokens.push(new Token(type, result[0], line, column));
-                    log(`Tokenized: ${type}(${result[0]}) at line ${line}, column ${column}`);
-                }
-                updatePosition(result[0]);
-                pos += result[0].length;
-                match = true;
-                break;
-            }
-        }
-        if (!match) {
-            const errorContext = input.slice(pos, pos + 10);
-            const errorMessage = `Unexpected token at line ${line}, column ${column}, near '${errorContext}'`;
-            log(`Error: ${errorMessage}`);
-            
-            // Token recovery: skip the problematic character and continue
-            log(`Attempting recovery: Skipping character '${input[pos]}' at position ${pos}`);
-            updatePosition(input[pos]);
-            pos++;
-            
-            // Throw an error, but continue processing
-            throw new LexerError(errorMessage, line, column);
-        }
-    }
-
-    log(`Lexical analysis completed. Total tokens: ${tokens.length}`);
-    return tokens;
+interface TokenDefinition {
+    type: string;
+    regex: RegExp;
+    ignore?: boolean;
 }
 
-export { Token, lexer, LexerError };
+export class Lexer {
+    private tokens: Token[] = [];
+    private current: number = 0;
+    private line: number = 1;
+    private column: number = 1;
+
+    constructor(private input: string, private tokenDefinitions: TokenDefinition[]) {}
+
+    tokenize(): Token[] {
+        while (this.current < this.input.length) {
+            let matched = false;
+            for (const { type, regex, ignore } of this.tokenDefinitions) {
+                const match = this.input.slice(this.current).match(regex);
+                if (match && match.index === 0) {
+                    const value = match[0];
+                    if (!ignore) {
+                        this.addToken(type, value);
+                    }
+                    this.updatePosition(value);
+                    this.current += value.length;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                throw new LexerError(
+                    `Unexpected character: ${this.input[this.current]}`,
+                    this.line,
+                    this.column
+                );
+            }
+        }
+        this.addToken('EOF', '');
+        return this.tokens;
+    }
+
+    private addToken(type: string, value: string): void {
+        this.tokens.push(new Token(type, value, this.line, this.column));
+        this.column += value.length;
+    }
+
+    private updatePosition(str: string): void {
+        for (const char of str) {
+            if (char === '\n') {
+                this.line++;
+                this.column = 1; 
+            } else {
+                this.column++;
+            }
+        }
+    }
+}
+
+const tokenDefinitions: TokenDefinition[] = [
+    { type: 'WHITESPACE', regex: /^\s+/, ignore: true },
+    { type: 'COMMENT', regex: /^\/\/.*/, ignore: true },
+    { type: 'MULTILINE_COMMENT', regex: /^\/\*[\s\S]*?\*\//, ignore: true },
+    { type: 'NUMBER', regex: /^\d+(\.\d+)?/ },
+    { type: 'STRING', regex: /^"([^"\\]|\\.)*"/ },
+    { type: 'IDENTIFIER', regex: /^[a-zA-Z_]\w*/ },
+    { type: 'EQUALS_EQUALS', regex: /^==/ },
+    { type: 'NOT_EQUALS', regex: /^!=/ },
+    { type: 'LESS_EQUALS', regex: /^<=/ },
+    { type: 'GREATER_EQUALS', regex: /^>=/ },
+    { type: 'EQUALS', regex: /^=/ },
+    { type: 'PLUS', regex: /^\+/ },
+    { type: 'MINUS', regex: /^-/ },
+    { type: 'ASTERISK', regex: /^\*/ },
+    { type: 'SLASH', regex: /^\// },
+    { type: 'LEFT_PAREN', regex: /^\(/ },
+    { type: 'RIGHT_PAREN', regex: /^\)/ },
+    { type: 'LEFT_BRACE', regex: /^\{/ },
+    { type: 'RIGHT_BRACE', regex: /^\}/ },
+    { type: 'SEMICOLON', regex: /^;/ },
+    { type: 'COMMA', regex: /^,/ },
+];
+
+export function lexer(input: string): Token[] {
+    const lex = new Lexer(input, tokenDefinitions);
+    return lex.tokenize();
+}
