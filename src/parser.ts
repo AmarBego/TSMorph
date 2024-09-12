@@ -1,4 +1,5 @@
-import { Token, LexerError } from './lexer';
+import { LexerError } from './lexer/lexerError';
+import { Token } from './lexer/token'
 
 class ParseError extends Error {
     constructor(message: string, public token: Token) {

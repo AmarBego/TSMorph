@@ -1,11 +1,9 @@
 import { expect } from 'chai';
-import { lexer, Token, LexerError } from '../../src/lexer';
+import { lexer } from '../../src/lexer/lexer';
+import { Token } from '../../src/lexer/token';
+import { LexerError } from '../../src/lexer/lexerError';
 
 function tokenToString(token: Token): string {
-    // For single character tokens like parentheses and braces, return the token directly
-    if (['LEFT_PAREN', 'RIGHT_PAREN', 'LEFT_BRACE', 'RIGHT_BRACE'].includes(token.type)) {
-        return `${token.type}(${token.value})`;
-    }
     return `${token.type}(${token.value})`;
 }
 
@@ -138,7 +136,6 @@ describe('Lexer', () => {
             'SEMICOLON(;)'
         ]);
     });
-    
 
     it('handles floating-point numbers', () => {
         const input = '3.14 + 2.5;';

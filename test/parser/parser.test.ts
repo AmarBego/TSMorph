@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { lexer } from '../../src/lexer';
+import { lexer } from '../../src/lexer/lexer';
 import { Parser, ASTNode, ParseError } from '../../src/parser';
 
 describe('Parser', () => {
