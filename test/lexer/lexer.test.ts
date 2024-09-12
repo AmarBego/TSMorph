@@ -12,6 +12,8 @@ describe('Lexer', () => {
     function expectTokens(input: string, expectedTokens: string[]) {
         const tokens = lexer(input);
         const tokenStrings = tokens.map(tokenToString);
+        console.log('Actual tokens:', tokenStrings);
+        console.log('Expected tokens:', expectedTokens);
         expect(tokenStrings.length - 1).to.equal(expectedTokens.length);
         for (let i = 0; i < expectedTokens.length; i++) {
             expect(tokenStrings[i]).to.equal(expectedTokens[i]);
@@ -123,18 +125,18 @@ describe('Lexer', () => {
     it('handles parentheses and braces', () => {
         const input = '(x + y) * {z - 1};';
         expectTokens(input, [
-            `${TokenType.LEFT_PAREN}(`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.PLUS}(+)`,
-            `${TokenType.IDENTIFIER}(y)`,
-            `${TokenType.RIGHT_PAREN})`,
-            `${TokenType.ASTERISK}(*)`,
-            `${TokenType.LEFT_BRACE}{`,
-            `${TokenType.IDENTIFIER}(z)`,
-            `${TokenType.MINUS}(-)`,
-            `${TokenType.NUMBER}(1)`,
-            `${TokenType.RIGHT_BRACE}}`,
-            `${TokenType.SEMICOLON}(;)`
+            `${TokenType[TokenType.LEFT_PAREN]}(()`,
+            `${TokenType[TokenType.IDENTIFIER]}(x)`,
+            `${TokenType[TokenType.PLUS]}(+)`,
+            `${TokenType[TokenType.IDENTIFIER]}(y)`,
+            `${TokenType[TokenType.RIGHT_PAREN]}())`,
+            `${TokenType[TokenType.ASTERISK]}(*)`,
+            `${TokenType[TokenType.LEFT_BRACE]}({)`,
+            `${TokenType[TokenType.IDENTIFIER]}(z)`,
+            `${TokenType[TokenType.MINUS]}(-)`,
+            `${TokenType[TokenType.NUMBER]}(1)`,
+            `${TokenType[TokenType.RIGHT_BRACE]}(})`,
+            `${TokenType[TokenType.SEMICOLON]}(;)`
         ]);
     });
 

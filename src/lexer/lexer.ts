@@ -20,7 +20,7 @@ export class Lexer {
         this.addToken(TokenType.EOF, '');
         return this.tokens;
     }
-
+    
     private scanToken(): boolean {
         for (const { type, regex, ignore } of this.tokenDefinitions) {
             const match = this.input.slice(this.current).match(regex);
@@ -36,10 +36,10 @@ export class Lexer {
         }
         return false;
     }
-
+    
     private addToken(type: TokenType, value: string): void {
         this.tokens.push(new Token(type, value, this.line, this.column));
-    }
+    }    
 
     private updatePosition(str: string): void {
         for (const char of str) {
