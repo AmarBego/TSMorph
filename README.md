@@ -23,7 +23,7 @@ This project aims to create a simple TypeScript compiler. The goal is to underst
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/tsmorph.git
+   git clone https://github.com/amarbego/tsmorph.git
    cd simple-ts-compiler
    ```
 
