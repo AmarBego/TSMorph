@@ -1,9 +1,17 @@
-
 # Simple TypeScript Compiler
 
 ## Overview
 
 This project aims to create a simple TypeScript compiler. The goal is to understand the fundamental components of a compiler by implementing a lexer, parser, and type checker from scratch. The project will also include a code generator to produce executable code from the parsed and type-checked source.
+
+## Development Status
+
+The project is currently under active development. You can check the progress on the following branches:
+
+- [Lexer Development](https://github.com/AmarBego/TSMorph/tree/lexer-development)
+- [Parser Development](https://github.com/AmarBego/TSMorph/tree/parser-development)
+
+Please note that the main branch is not being updated at this time. All development work is happening in the feature branches mentioned above.
 
 ## Features
 
@@ -23,8 +31,8 @@ This project aims to create a simple TypeScript compiler. The goal is to underst
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/amarbego/tsmorph.git
-   cd tsmorph
+   git clone https://github.com/yourusername/tsmorph.git
+   cd simple-ts-compiler
    ```
 
 2. Install dependencies:
