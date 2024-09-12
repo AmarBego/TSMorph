@@ -1,29 +1,31 @@
+import { TokenType } from './tokenTypes';
+
 export interface TokenDefinition {
-    type: string;
+    type: TokenType;
     regex: RegExp;
     ignore?: boolean;
 }
 
 export const tokenDefinitions: TokenDefinition[] = [
-    { type: 'WHITESPACE', regex: /^\s+/, ignore: true },
-    { type: 'COMMENT', regex: /^\/\/.*/, ignore: true },
-    { type: 'MULTILINE_COMMENT', regex: /^\/\*[\s\S]*?\*\//, ignore: true },
-    { type: 'NUMBER', regex: /^\d+(\.\d+)?/ },
-    { type: 'STRING', regex: /^"([^"\\]|\\.)*"/ },
-    { type: 'IDENTIFIER', regex: /^[a-zA-Z_]\w*/ },
-    { type: 'EQUALS_EQUALS', regex: /^==/ },
-    { type: 'NOT_EQUALS', regex: /^!=/ },
-    { type: 'LESS_EQUALS', regex: /^<=/ },
-    { type: 'GREATER_EQUALS', regex: /^>=/ },
-    { type: 'EQUALS', regex: /^=/ },
-    { type: 'PLUS', regex: /^\+/ },
-    { type: 'MINUS', regex: /^-/ },
-    { type: 'ASTERISK', regex: /^\*/ },
-    { type: 'SLASH', regex: /^\// },
-    { type: 'LEFT_PAREN', regex: /^\(/ },
-    { type: 'RIGHT_PAREN', regex: /^\)/ },
-    { type: 'LEFT_BRACE', regex: /^\{/ },
-    { type: 'RIGHT_BRACE', regex: /^\}/ },
-    { type: 'SEMICOLON', regex: /^;/ },
-    { type: 'COMMA', regex: /^,/ },
+    { type: TokenType.WHITESPACE, regex: /^\s+/, ignore: true },
+    { type: TokenType.COMMENT, regex: /^\/\/.*/, ignore: true },
+    { type: TokenType.MULTILINE_COMMENT, regex: /^\/\*[\s\S]*?\*\//, ignore: true },
+    { type: TokenType.NUMBER, regex: /^\d+(\.\d+)?/ },
+    { type: TokenType.STRING, regex: /^"([^"\\]|\\.)*"/ },
+    { type: TokenType.IDENTIFIER, regex: /^[a-zA-Z_]\w*/ },
+    { type: TokenType.EQUALS_EQUALS, regex: /^==/ },
+    { type: TokenType.NOT_EQUALS, regex: /^!=/ },
+    { type: TokenType.LESS_EQUALS, regex: /^<=/ },
+    { type: TokenType.GREATER_EQUALS, regex: /^>=/ },
+    { type: TokenType.EQUALS, regex: /^=/ },
+    { type: TokenType.PLUS, regex: /^\+/ },
+    { type: TokenType.MINUS, regex: /^-/ },
+    { type: TokenType.ASTERISK, regex: /^\*/ },
+    { type: TokenType.SLASH, regex: /^\// },
+    { type: TokenType.LEFT_PAREN, regex: /^\(/ },
+    { type: TokenType.RIGHT_PAREN, regex: /^\)/ },
+    { type: TokenType.LEFT_BRACE, regex: /^\{/ },
+    { type: TokenType.RIGHT_BRACE, regex: /^\}/ },
+    { type: TokenType.SEMICOLON, regex: /^;/ },
+    { type: TokenType.COMMA, regex: /^,/ },
 ];

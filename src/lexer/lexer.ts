@@ -1,6 +1,7 @@
 import { Token } from './token';
 import { LexerError } from './lexerError';
 import { TokenDefinition, tokenDefinitions } from './tokenDefinitions';
+import { TokenType } from './tokenTypes';
 
 export class Lexer {
     private tokens: Token[] = [];
@@ -12,36 +13,33 @@ export class Lexer {
 
     tokenize(): Token[] {
         while (this.current < this.input.length) {
-            let matched = false;
-            for (const { type, regex, ignore } of this.tokenDefinitions) {
-                const match = this.input.slice(this.current).match(regex);
-                if (match && match.index === 0) {
-                    const value = match[0];
-                    if (!ignore) {
-                        this.addToken(type, value);
-                    }
-                    this.updatePosition(value);
-                    this.current += value.length;
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched) {
-                throw new LexerError(
-                    `Unexpected character: ${this.input[this.current]}`,
-                    this.line,
-                    this.column
-                );
+            if (!this.scanToken()) {
+                this.throwError(`Unexpected character: ${this.getCurrentChar()}`);
             }
         }
-        this.addToken('EOF', '');
+        this.addToken(TokenType.EOF, '');
         return this.tokens;
     }
 
-    private addToken(type: string, value: string): void {
+    private scanToken(): boolean {
+        for (const { type, regex, ignore } of this.tokenDefinitions) {
+            const match = this.input.slice(this.current).match(regex);
+            if (match && match.index === 0) {
+                const value = match[0];
+                if (!ignore) {
+                    this.addToken(type, value);
+                }
+                this.updatePosition(value);
+                this.current += value.length;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private addToken(type: TokenType, value: string): void {
         this.tokens.push(new Token(type, value, this.line, this.column));
     }
-    
 
     private updatePosition(str: string): void {
         for (const char of str) {
@@ -52,6 +50,14 @@ export class Lexer {
                 this.column++;
             }
         }
+    }
+
+    private getCurrentChar(): string {
+        return this.input[this.current];
+    }
+
+    private throwError(message: string): never {
+        throw new LexerError(message, this.line, this.column);
     }
 }
 
