@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import { Parser, ASTNode, ParseError } from '../../src/parser';
 import { lexer } from '../../src/lexer/lexer';
+import sinon from 'sinon';
+import { Logger } from '../../src/utils/logger';
 
 describe('Parser', () => {
     it('parses simple arithmetic expressions', () => {
@@ -22,7 +24,20 @@ describe('Parser', () => {
             ])
         );
     });
-
+    it('logs parsing process', () => {
+        const input = '2 + 3 * 4;';
+        const logSpy = sinon.spy(console, 'log');
+        
+        const parser = new Parser(input);
+        parser.parse();
+    
+        expect(logSpy.calledWith('[Parser] INFO: Initializing parser')).to.be.true;
+        expect(logSpy.calledWith('[Parser] INFO: Starting parsing process')).to.be.true;
+        expect(logSpy.calledWith('[Parser] INFO: Parsing completed successfully')).to.be.true;
+        expect(logSpy.calledWith(sinon.match(/\[Parser\] DEBUG: Parsing .+/))).to.be.true;
+    
+        logSpy.restore();
+    });
 
     it('handles nested expressions', () => {
         const input = '(1 + 2) * (3 - 4);';

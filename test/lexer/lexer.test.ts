@@ -3,6 +3,8 @@ import { lexer } from '../../src/lexer/lexer';
 import { Token } from '../../src/lexer/token';
 import { LexerError } from '../../src/lexer/lexerError';
 import { TokenType } from '../../src/lexer/tokenTypes';
+import { Logger } from '../../src/utils/logger';
+import sinon from 'sinon';
 
 function tokenToString(token: Token): string {
     return `${TokenType[token.type]}(${token.value})`;
@@ -19,6 +21,18 @@ describe('Lexer', () => {
         expect(tokenStrings[tokenStrings.length - 1]).to.equal(`${TokenType.EOF}()`);
     }
 
+    it('logs tokenization process', () => {
+        const input = 'let x = 42;';
+        const logSpy = sinon.spy(console, 'log');
+        
+        lexer(input);
+    
+        expect(logSpy.calledWith('[Lexer] INFO: Starting tokenization process')).to.be.true;
+        expect(logSpy.calledWith('[Lexer] INFO: Tokenization completed')).to.be.true;
+        expect(logSpy.calledWith(sinon.match(/\[Lexer\] DEBUG: Token added: .+/))).to.be.true;
+    
+        logSpy.restore();
+    });
     it('tokenizes identifiers and numbers', () => {
         const input = 'let x = 42;';
         expectTokens(input, [
@@ -167,4 +181,5 @@ describe('Lexer', () => {
             `${TokenType.SEMICOLON}(;)`
         ]);
     });
+
 });

@@ -2,6 +2,7 @@ import { LexerError } from './lexer/lexerError';
 import { Token } from './lexer/token';
 import { TokenType } from './lexer/tokenTypes';
 import { lexer } from './lexer/lexer';
+import { Logger } from './utils/logger';
 
 class ParseError extends Error {
     constructor(message: string, public token: Token) {
@@ -17,13 +18,18 @@ class ASTNode {
 export class Parser {
     private tokens: Token[];
     private current: number = 0;
+    private logger: Logger;
 
     constructor(input: string | Token[]) {
+        this.logger = new Logger('Parser');
+        this.logger.info('Initializing parser');
         if (typeof input === 'string') {
             try {
+                this.logger.info('Tokenizing input string');
                 this.tokens = lexer(input);
             } catch (error) {
                 if (error instanceof LexerError) {
+                    this.logger.error(`Lexer error: ${error.message}`);
                     throw new ParseError(`Lexer error: ${error.message}`, new Token(TokenType.EOF, '', error.line, error.column));
                 }
                 throw error;
@@ -31,20 +37,25 @@ export class Parser {
         } else {
             this.tokens = input;
         }
+        this.logger.info('Parser initialized');
     }
 
     parse(): ASTNode {
         try {
-            return this.program();
+            this.logger.info('Starting parsing process');
+            const ast = this.program();
+            this.logger.info('Parsing completed successfully');
+            return ast;
         } catch (error) {
             if (error instanceof ParseError) {
-                console.error(`Parse error at line ${error.token.line}, column ${error.token.column}: ${error.message}`);
+                this.logger.error(`Parse error at line ${error.token.line}, column ${error.token.column}: ${error.message}`);
             }
             throw error;
         }
     }
 
     private program(): ASTNode {
+        this.logger.debug('Parsing program');
         const statements: ASTNode[] = [];
         while (!this.isAtEnd()) {
             statements.push(this.statement());
@@ -53,15 +64,17 @@ export class Parser {
     }
 
     private statement(): ASTNode {
+        this.logger.debug('Parsing statement');
         return this.expressionStatement();
     }
 
     private expressionStatement(): ASTNode {
+        this.logger.debug('Parsing expression statement');
         const expr = this.expression();
         this.consume(TokenType.SEMICOLON, "Expected ';' after expression.");
         return new ASTNode('ExpressionStatement', [expr]);
     }
-
+    
     private expression(): ASTNode {
         return this.additive();
     }
