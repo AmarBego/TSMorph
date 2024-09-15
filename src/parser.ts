@@ -1,6 +1,7 @@
 import { LexerError } from './lexer/lexerError';
 import { Token } from './lexer/token';
 import { TokenType } from './lexer/tokenTypes';
+import { lexer } from './lexer/lexer';
 
 class ParseError extends Error {
     constructor(message: string, public token: Token) {
@@ -13,12 +14,23 @@ class ASTNode {
     constructor(public type: string, public children: ASTNode[] = []) {}
 }
 
-class Parser {
+export class Parser {
     private tokens: Token[];
     private current: number = 0;
 
-    constructor(tokens: Token[]) {
-        this.tokens = tokens;
+    constructor(input: string | Token[]) {
+        if (typeof input === 'string') {
+            try {
+                this.tokens = lexer(input);
+            } catch (error) {
+                if (error instanceof LexerError) {
+                    throw new ParseError(`Lexer error: ${error.message}`, new Token(TokenType.EOF, '', error.line, error.column));
+                }
+                throw error;
+            }
+        } else {
+            this.tokens = input;
+        }
     }
 
     parse(): ASTNode {
@@ -138,4 +150,4 @@ class Parser {
     }
 }
 
-export { Parser, ASTNode, ParseError };
+export { ASTNode, ParseError };

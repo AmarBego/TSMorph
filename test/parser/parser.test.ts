@@ -1,12 +1,11 @@
 import { expect } from 'chai';
-import { lexer } from '../../src/lexer/lexer';
 import { Parser, ASTNode, ParseError } from '../../src/parser';
+import { lexer } from '../../src/lexer/lexer';
 
 describe('Parser', () => {
     it('parses simple arithmetic expressions', () => {
         const input = '2 + 3 * 4;';
-        const tokens = lexer(input);
-        const parser = new Parser(tokens);
+        const parser = new Parser(input);
         const ast = parser.parse();
 
         expect(ast).to.deep.equal(
@@ -24,10 +23,10 @@ describe('Parser', () => {
         );
     });
 
+
     it('handles nested expressions', () => {
         const input = '(1 + 2) * (3 - 4);';
-        const tokens = lexer(input);
-        const parser = new Parser(tokens);
+        const parser = new Parser(input);
         const ast = parser.parse();
 
         expect(ast).to.deep.equal(
@@ -54,8 +53,7 @@ describe('Parser', () => {
 
     it('throws error on invalid syntax', () => {
         const input = '2 + * 3;';
-        const tokens = lexer(input);
-        const parser = new Parser(tokens);
+        const parser = new Parser(input);
         expect(() => parser.parse()).to.throw(ParseError, 'Expected expression.');
     });
 
@@ -106,5 +104,10 @@ describe('Parser', () => {
         const tokens = lexer(input);
         const parser = new Parser(tokens);
         expect(() => parser.parse()).to.throw(ParseError, "Expected ';' after expression.");
+    });
+
+    it('handles lexer errors', () => {
+        const input = '2 + @ * 4;';
+        expect(() => new Parser(input)).to.throw(ParseError, 'Lexer error: Unexpected character: @');
     });
 });

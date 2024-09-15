@@ -12,8 +12,6 @@ describe('Lexer', () => {
     function expectTokens(input: string, expectedTokens: string[]) {
         const tokens = lexer(input);
         const tokenStrings = tokens.map(tokenToString);
-        console.log('Actual tokens:', tokenStrings);
-        console.log('Expected tokens:', expectedTokens);
         expect(tokenStrings.length - 1).to.equal(expectedTokens.length);
         for (let i = 0; i < expectedTokens.length; i++) {
             expect(tokenStrings[i]).to.equal(expectedTokens[i]);
