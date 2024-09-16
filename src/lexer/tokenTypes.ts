@@ -1,7 +1,7 @@
 export enum TokenType {
     WHITESPACE = 'WHITESPACE',
     COMMENT = 'COMMENT',
-    MULTILINE_COMMENT = 'MULTILINE_COMMENT',
+    MULTI_LINE_COMMENT = 'MULTI_LINE_COMMENT',
     NUMBER = 'NUMBER',
     STRING = 'STRING',
     IDENTIFIER = 'IDENTIFIER',
@@ -20,5 +20,11 @@ export enum TokenType {
     RIGHT_BRACE = 'RIGHT_BRACE',
     SEMICOLON = 'SEMICOLON',
     COMMA = 'COMMA',
-    EOF = 'EOF'
+    EOF = 'EOF',
+    LET = 'LET',
+    IF = 'IF',
+    ELSE = 'ELSE',
+    WHILE = 'WHILE',
+    FOR = 'FOR',
+    RETURN = 'RETURN'
 }

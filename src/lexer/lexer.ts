@@ -11,8 +11,12 @@ export class Lexer {
     private column: number = 1;
     private logger: Logger;
 
-    constructor(private input: string, private tokenDefinitions: TokenDefinition[]) {
-        this.logger = new Logger('Lexer');
+    constructor(
+        private input: string,
+        private tokenDefinitions: TokenDefinition[],
+        logger?: Logger
+    ) {
+        this.logger = logger || new Logger('Lexer');
     }
 
     tokenize(): Token[] {
@@ -68,7 +72,7 @@ export class Lexer {
     }
 }
 
-export function lexer(input: string): Token[] {
-    const lex = new Lexer(input, tokenDefinitions);
+export function lexer(input: string, logger?: Logger): Token[] {
+    const lex = new Lexer(input, tokenDefinitions, logger);
     return lex.tokenize();
 }

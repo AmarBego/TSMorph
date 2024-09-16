@@ -1,27 +1,44 @@
 import { expect } from 'chai';
 import { lexer } from '../../src/lexer/lexer';
-import { Token } from '../../src/lexer/token';
-import { LexerError } from '../../src/lexer/lexerError';
 import { TokenType } from '../../src/lexer/tokenTypes';
+import { LexerError } from '../../src/lexer/lexerError';
 import { Logger } from '../../src/utils/logger';
 import sinon from 'sinon';
 
-function tokenToString(token: Token): string {
-    return `${TokenType[token.type]}(${token.value})`;
-}
-
 describe('Lexer', () => {
-    function expectTokens(input: string, expectedTokens: string[]) {
+
+    it('logs tokenization process with mockLogger', () => {
+        const input = 'let x = 42;';
+        const mockLogger = new Logger('Lexer');
+        const infoSpy = sinon.spy(mockLogger, 'info');
+        const debugSpy = sinon.spy(mockLogger, 'debug');
+    
+        lexer(input, mockLogger);
+    
+        expect(infoSpy.calledWith('Starting tokenization process')).to.be.true;
+        expect(debugSpy.calledWith(`Token added: ${TokenType.LET} (let)`)).to.be.true;
+        expect(debugSpy.calledWith(`Token added: ${TokenType.IDENTIFIER} (x)`)).to.be.true;
+        expect(debugSpy.calledWith(`Token added: ${TokenType.EQUALS} (=)`)).to.be.true;
+        expect(debugSpy.calledWith(`Token added: ${TokenType.NUMBER} (42)`)).to.be.true;
+        expect(debugSpy.calledWith(`Token added: ${TokenType.SEMICOLON} (;)`)).to.be.true;
+        expect(infoSpy.calledWith('Tokenization completed')).to.be.true;
+    
+        infoSpy.restore();
+        debugSpy.restore();
+    });
+    
+    function expectTokens(input: string, expectedTokens: { type: TokenType, value: string }[]) {
         const tokens = lexer(input);
-        const tokenStrings = tokens.map(tokenToString);
-        expect(tokenStrings.length - 1).to.equal(expectedTokens.length);
+        expect(tokens.length).to.equal(expectedTokens.length + 1); // +1 for EOF
         for (let i = 0; i < expectedTokens.length; i++) {
-            expect(tokenStrings[i]).to.equal(expectedTokens[i]);
+            expect(tokens[i].type).to.equal(expectedTokens[i].type);
+            expect(tokens[i].value).to.equal(expectedTokens[i].value);
         }
-        expect(tokenStrings[tokenStrings.length - 1]).to.equal(`${TokenType.EOF}()`);
+        expect(tokens[tokens.length - 1].type).to.equal(TokenType.EOF);
+        expect(tokens[tokens.length - 1].value).to.equal('');
     }
 
-    it('logs tokenization process', () => {
+    it('logs tokenization process with console.log', () => {
         const input = 'let x = 42;';
         const logSpy = sinon.spy(console, 'log');
         
@@ -33,68 +50,69 @@ describe('Lexer', () => {
     
         logSpy.restore();
     });
+
     it('tokenizes identifiers and numbers', () => {
         const input = 'let x = 42;';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.NUMBER}(42)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.NUMBER, value: '42' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('tokenizes operators', () => {
         const input = 'x + y - z * 2 / 1;';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.PLUS}(+)`,
-            `${TokenType.IDENTIFIER}(y)`,
-            `${TokenType.MINUS}(-)`,
-            `${TokenType.IDENTIFIER}(z)`,
-            `${TokenType.ASTERISK}(*)`,
-            `${TokenType.NUMBER}(2)`,
-            `${TokenType.SLASH}(/)`,
-            `${TokenType.NUMBER}(1)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.PLUS, value: '+' },
+            { type: TokenType.IDENTIFIER, value: 'y' },
+            { type: TokenType.MINUS, value: '-' },
+            { type: TokenType.IDENTIFIER, value: 'z' },
+            { type: TokenType.ASTERISK, value: '*' },
+            { type: TokenType.NUMBER, value: '2' },
+            { type: TokenType.SLASH, value: '/' },
+            { type: TokenType.NUMBER, value: '1' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('tokenizes multi-character operators', () => {
         const input = 'x == y != z <= 2 >= 1;';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.EQUALS_EQUALS}(==)`,
-            `${TokenType.IDENTIFIER}(y)`,
-            `${TokenType.NOT_EQUALS}(!=)`,
-            `${TokenType.IDENTIFIER}(z)`,
-            `${TokenType.LESS_EQUALS}(<=)`,
-            `${TokenType.NUMBER}(2)`,
-            `${TokenType.GREATER_EQUALS}(>=)`,
-            `${TokenType.NUMBER}(1)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.EQUALS_EQUALS, value: '==' },
+            { type: TokenType.IDENTIFIER, value: 'y' },
+            { type: TokenType.NOT_EQUALS, value: '!=' },
+            { type: TokenType.IDENTIFIER, value: 'z' },
+            { type: TokenType.LESS_EQUALS, value: '<=' },
+            { type: TokenType.NUMBER, value: '2' },
+            { type: TokenType.GREATER_EQUALS, value: '>=' },
+            { type: TokenType.NUMBER, value: '1' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('tokenizes string literals', () => {
         const input = 'let str = "hello \\"world\\"";';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(str)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.STRING}("hello \\"world\\"")`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'str' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.STRING, value: '"hello \\"world\\""' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('handles comments', () => {
         const input = 'let x = 42; // this is a comment\n/* multi-line\ncomment */';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.NUMBER}(42)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.NUMBER, value: '42' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
@@ -107,11 +125,11 @@ describe('Lexer', () => {
     it('handles whitespace correctly', () => {
         const input = '   let    x   =   42   ;   ';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.NUMBER}(42)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.NUMBER, value: '42' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
@@ -119,66 +137,67 @@ describe('Lexer', () => {
         const input = '';
         const tokens = lexer(input);
         expect(tokens.length).to.equal(1);
-        expect(tokenToString(tokens[0])).to.equal(`${TokenType.EOF}()`);
+        expect(tokens[0].type).to.equal(TokenType.EOF);
+        expect(tokens[0].value).to.equal('');
     });
 
     it('handles single character tokens', () => {
         const input = '+-*/=;';
         expectTokens(input, [
-            `${TokenType.PLUS}(+)`,
-            `${TokenType.MINUS}(-)`,
-            `${TokenType.ASTERISK}(*)`,
-            `${TokenType.SLASH}(/)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.PLUS, value: '+' },
+            { type: TokenType.MINUS, value: '-' },
+            { type: TokenType.ASTERISK, value: '*' },
+            { type: TokenType.SLASH, value: '/' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('handles parentheses and braces', () => {
         const input = '(x + y) * {z - 1};';
         expectTokens(input, [
-            `${TokenType[TokenType.LEFT_PAREN]}(()`,
-            `${TokenType[TokenType.IDENTIFIER]}(x)`,
-            `${TokenType[TokenType.PLUS]}(+)`,
-            `${TokenType[TokenType.IDENTIFIER]}(y)`,
-            `${TokenType[TokenType.RIGHT_PAREN]}())`,
-            `${TokenType[TokenType.ASTERISK]}(*)`,
-            `${TokenType[TokenType.LEFT_BRACE]}({)`,
-            `${TokenType[TokenType.IDENTIFIER]}(z)`,
-            `${TokenType[TokenType.MINUS]}(-)`,
-            `${TokenType[TokenType.NUMBER]}(1)`,
-            `${TokenType[TokenType.RIGHT_BRACE]}(})`,
-            `${TokenType[TokenType.SEMICOLON]}(;)`
+            { type: TokenType.LEFT_PAREN, value: '(' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.PLUS, value: '+' },
+            { type: TokenType.IDENTIFIER, value: 'y' },
+            { type: TokenType.RIGHT_PAREN, value: ')' },
+            { type: TokenType.ASTERISK, value: '*' },
+            { type: TokenType.LEFT_BRACE, value: '{' },
+            { type: TokenType.IDENTIFIER, value: 'z' },
+            { type: TokenType.MINUS, value: '-' },
+            { type: TokenType.NUMBER, value: '1' },
+            { type: TokenType.RIGHT_BRACE, value: '}' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('handles floating-point numbers', () => {
         const input = '3.14 + 2.5;';
         expectTokens(input, [
-            `${TokenType.NUMBER}(3.14)`,
-            `${TokenType.PLUS}(+)`,
-            `${TokenType.NUMBER}(2.5)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.NUMBER, value: '3.14' },
+            { type: TokenType.PLUS, value: '+' },
+            { type: TokenType.NUMBER, value: '2.5' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
     it('handles multiple statements', () => {
         const input = 'let x = 5; let y = 10; x + y;';
         expectTokens(input, [
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.NUMBER}(5)`,
-            `${TokenType.SEMICOLON}(;)`,
-            `${TokenType.IDENTIFIER}(let)`,
-            `${TokenType.IDENTIFIER}(y)`,
-            `${TokenType.EQUALS}(=)`,
-            `${TokenType.NUMBER}(10)`,
-            `${TokenType.SEMICOLON}(;)`,
-            `${TokenType.IDENTIFIER}(x)`,
-            `${TokenType.PLUS}(+)`,
-            `${TokenType.IDENTIFIER}(y)`,
-            `${TokenType.SEMICOLON}(;)`
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.NUMBER, value: '5' },
+            { type: TokenType.SEMICOLON, value: ';' },
+            { type: TokenType.LET, value: 'let' },
+            { type: TokenType.IDENTIFIER, value: 'y' },
+            { type: TokenType.EQUALS, value: '=' },
+            { type: TokenType.NUMBER, value: '10' },
+            { type: TokenType.SEMICOLON, value: ';' },
+            { type: TokenType.IDENTIFIER, value: 'x' },
+            { type: TokenType.PLUS, value: '+' },
+            { type: TokenType.IDENTIFIER, value: 'y' },
+            { type: TokenType.SEMICOLON, value: ';' }
         ]);
     });
 
