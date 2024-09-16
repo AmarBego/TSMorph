@@ -31,7 +31,7 @@ Please note that the main branch is not being updated at this time. All developm
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/tsmorph.git
+   git clone https://github.com/amarbego/tsmorph.git
    cd simple-ts-compiler
    ```
 
