@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { Parser, ASTNode, ParseError } from '../../src/parser/parser';
+import { Parser } from '../../src/parser/parser';
+import { ASTNode } from '../../src/parser/astNode';
+import { LexerError } from '../../src/lexer/lexerError';
+import { ParseError } from '../../src/parser/parseError';
 import sinon from 'sinon';
 import { Logger } from '../../src/utils/logger';
 
@@ -28,10 +31,10 @@ describe('Parser', () => {
             new ASTNode('Program', [
                 new ASTNode('ExpressionStatement', [
                     new ASTNode('Addition', [
-                        new ASTNode('NumberLiteral', [new ASTNode('2')]),
+                        new ASTNode('NumberLiteral', [], '2'),
                         new ASTNode('Multiplication', [
-                            new ASTNode('NumberLiteral', [new ASTNode('3')]),
-                            new ASTNode('NumberLiteral', [new ASTNode('4')])
+                            new ASTNode('NumberLiteral', [], '3'),
+                            new ASTNode('NumberLiteral', [], '4')
                         ])
                     ])
                 ])
@@ -47,17 +50,17 @@ describe('Parser', () => {
         expect(ast).to.deep.equal(
             new ASTNode('Program', [
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('x')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('5')])
+                    new ASTNode('Identifier', [], 'x'),
+                    new ASTNode('NumberLiteral', [], '5')
                 ]),
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('y')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('10')])
+                    new ASTNode('Identifier', [], 'y'),
+                    new ASTNode('NumberLiteral', [], '10')
                 ]),
                 new ASTNode('ExpressionStatement', [
                     new ASTNode('Addition', [
-                        new ASTNode('Identifier', [new ASTNode('x')]),
-                        new ASTNode('Identifier', [new ASTNode('y')])
+                        new ASTNode('Identifier', [], 'x'),
+                        new ASTNode('Identifier', [], 'y')
                     ])
                 ])
             ])
@@ -81,14 +84,14 @@ describe('Parser', () => {
                     new ASTNode('Multiplication', [
                         new ASTNode('GroupingExpression', [
                             new ASTNode('Addition', [
-                                new ASTNode('NumberLiteral', [new ASTNode('1')]),
-                                new ASTNode('NumberLiteral', [new ASTNode('2')])
+                                new ASTNode('NumberLiteral', [], '1'),
+                                new ASTNode('NumberLiteral', [], '2')
                             ])
                         ]),
                         new ASTNode('GroupingExpression', [
                             new ASTNode('Subtraction', [
-                                new ASTNode('NumberLiteral', [new ASTNode('3')]),
-                                new ASTNode('NumberLiteral', [new ASTNode('4')])
+                                new ASTNode('NumberLiteral', [], '3'),
+                                new ASTNode('NumberLiteral', [], '4')
                             ])
                         ])
                     ])

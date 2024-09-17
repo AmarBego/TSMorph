@@ -1,3 +1,4 @@
+// src/parser/statementParser.ts
 import { ASTNode } from './astNode';
 import { Parser } from './parser';
 import { TokenType } from '../lexer/tokenTypes';
@@ -15,15 +16,15 @@ export class StatementParser {
 
     private variableDeclaration(): ASTNode {
         const nameToken = this.parser.consume(TokenType.IDENTIFIER, "Expected variable name.");
-        const identifier = new ASTNode('Identifier', [new ASTNode(nameToken.value)]);
-    
+        const identifier = new ASTNode('Identifier', [], nameToken.value);
+
         this.parser.consume(TokenType.EQUALS, "Expected '=' after variable name.");
         const initializer = this.parser.expressionParser.expression();
-    
+
         this.parser.consume(TokenType.SEMICOLON, "Expected ';' after variable declaration.");
         return new ASTNode('VariableDeclaration', [identifier, initializer]);
     }
-    
+
     private expressionStatement(): ASTNode {
         const expr = this.parser.expressionParser.expression();
         this.parser.consume(TokenType.SEMICOLON, "Expected ';' after expression.");
