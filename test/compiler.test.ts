@@ -74,17 +74,17 @@ describe('Compiler', () => {
         expect(ast).to.deep.equal(
             new ASTNode('Program', [
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('x')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('5')])
+                    new ASTNode('Identifier', [], 'x'),
+                    new ASTNode('NumberLiteral', [], '5')
                 ]),
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('y')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('10')])
+                    new ASTNode('Identifier', [], 'y'),
+                    new ASTNode('NumberLiteral', [], '10')
                 ]),
                 new ASTNode('ExpressionStatement', [
                     new ASTNode('Addition', [
-                        new ASTNode('Identifier', [new ASTNode('x')]),
-                        new ASTNode('Identifier', [new ASTNode('y')])
+                        new ASTNode('Identifier', [], 'x'),
+                        new ASTNode('Identifier', [], 'y')
                     ])
                 ])
             ])
@@ -120,17 +120,17 @@ describe('Compiler', () => {
         expect(ast).to.deep.equal(
             new ASTNode('Program', [
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('x')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('5')])
+                    new ASTNode('Identifier', [], 'x'),
+                    new ASTNode('NumberLiteral', [], '5')
                 ]),
                 new ASTNode('VariableDeclaration', [
-                    new ASTNode('Identifier', [new ASTNode('y')]),
-                    new ASTNode('NumberLiteral', [new ASTNode('10')])
+                    new ASTNode('Identifier', [], 'y'),
+                    new ASTNode('NumberLiteral', [], '10')
                 ]),
                 new ASTNode('ExpressionStatement', [
                     new ASTNode('Addition', [
-                        new ASTNode('Identifier', [new ASTNode('x')]),
-                        new ASTNode('Identifier', [new ASTNode('y')])
+                        new ASTNode('Identifier', [], 'x'),
+                        new ASTNode('Identifier', [], 'y')
                     ])
                 ])
             ])
