@@ -6,10 +6,10 @@ This project aims to create a simple TypeScript compiler. The goal is to underst
 
 ## Development Status
 
-The project is currently under active development. You can check the progress on the following branches:
+Though some progress has been merged into the main branch,
+The project is currently under active development. You can check the progress on the following branch:
 
 - [Lexer Development](https://github.com/AmarBego/TSMorph/tree/lexer-development)
-- [Parser Development](https://github.com/AmarBego/TSMorph/tree/parser-development)
 
 Please note that the main branch is not being updated at this time. All development work is happening in the feature branches mentioned above.
 
